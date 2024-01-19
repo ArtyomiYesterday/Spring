@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск работы</title>
+    <link rel="stylesheet" href="style_job_search.css"> <!-- Подключение файла стилей -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+    <style>
+        .vacancy-card img {
+            max-width: 100%;
+            max-height: 200px; /* Задайте желаемую максимальную высоту */
+            object-fit: cover;
+        }
+        .vacancy-card {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 20px;
+            margin-left: 20px;
+            width: calc(33.33% - 20px);
+            box-sizing: border-box;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+
+        #vacancyResults {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: left;
+
+        }
+
+
+        @media (max-width: 768px) {
+            .vacancy-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a id="home-link" href="#">Главная</a></li>
+            <li><a href="#" id="job_search">Поиск работы</a></li>
+            <li><a href="#" id ="employers">Работодателям</a></li>
+            <li><a href="#" id ="about-link">О нас</a></li>
+            <li><a href="#" id = "login-link">Войти</a></li>
+            <li><a href="#" id="register-link">Зарегистрироваться</a></li>
+            <li><a href="#" id="my_account">Мой аккаунт</a></li>
+            <li><a href="#" id="exit">Выход</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="job-search-section">
+    <h1>Поиск работы</h1>
+    <form id="jobSearchForm" >
+        <label for="jobTitle">Название вакансии:</label>
+        <input type="text" id="jobTitle" name="jobTitle">
+
+        <label for="location">Местоположение:</label>
+        <input type="text" id="location" name="location">
+
+        <button type="submit">Найти вакансии</button>
+    </form>
+
+
+
+
+</section>
+
+<div id="vacancyResults" class="vacancy-results"></div>
+
+
+<<!-- Шаблон для каждой вакансии -->
+<template id="vacancyCardTemplate" >
+    <div class="vacancy-card">
+        <h3 class="vacancy-title"></h3>
+        <p class="vacancy-salary"></p>
+        <p class="vacancy-location"></p>
+        <img class="vacancy-image" src="" alt="Vacancy Image">
+    </div>
+</template>
+
+
+<script>$(document).ready(function() {
+    var jobTitleInput = $('#jobTitle');
+    var locationInput = $('#location');
+
+    // По умолчанию отображаем все вакансии
+    getVacancies();
+
+    // Обработчик события на кнопке "Найти вакансии"
+    $('#jobSearchForm').submit(function(e) {
+        e.preventDefault();
+
+
+        console.log(jobTitleInput.val())
+        console.log(locationInput.val())
+        console.log(locationInput.val()==='')
+        console.log(locationInput.val()!=='')
+
+
+        if (jobTitleInput.val()!=='' && locationInput.val()!=='') {
+            getVacanciesByJobTitleAndLocation();
+        } else if (jobTitleInput.val()!=='') {
+            getVacanciesByJobTitle();
+        } else if (locationInput.val()!=='') {
+            getVacanciesByLocation();
+        } else {
+            getVacancies();
+        }
+    });
+
+
+
+    function getVacancies() {
+        console.log('getVacancies')
+        $.ajax({
+            url: '/api/vacancies',
+            type: 'GET',
+            success: function(data) {
+                displayVacancies(data);
+            },
+            error: function() {
+                console.log('Ошибка при выполнении запроса');
+            }
+        });
+    }
+
+    function getVacanciesByLocation() {
+        console.log('getVacanciesByLocation')
+        var location = locationInput.val();
+        $.ajax({
+            url: '/api/vacancies?location=' + location,
+            type: 'GET',
+            success: function(data) {
+                displayVacancies(data);
+            },
+            error: function() {
+                console.log('Ошибка при выполнении запроса');
+            }
+        });
+    }
+
+    function getVacanciesByJobTitle() {
+        console.log('getVacanciesByJobTitle')
+        var jobTitle = jobTitleInput.val();
+        $.ajax({
+            url: '/api/vacancies?jobTitle=' + jobTitle,
+            type: 'GET',
+            success: function(data) {
+                displayVacancies(data);
+            },
+            error: function() {
+                console.log('Ошибка при выполнении запроса');
+            }
+        });
+    }
+
+    function getVacanciesByJobTitleAndLocation() {
+        console.log('getVacanciesByJobTitleAndLocation')
+        var jobTitle = jobTitleInput.val();
+        var location = locationInput.val();
+        $.ajax({
+            url: '/api/vacancies?jobTitle=' + jobTitle + '&location=' + location,
+            type: 'GET',
+            success: function(data) {
+                displayVacancies(data);
+            },
+            error: function() {
+                console.log('Ошибка при выполнении запроса');
+            }
+        });
+    }
+
+    function displayVacancies(vacancies) {
+        console.log('displayVacancies')
+
+        // Очищаем контейнер vacancyResults
+        $('#vacancyResults').empty();
+
+        vacancies.forEach(function(vacancy) {
+            var vacancyCardTemplate = $('#vacancyCardTemplate').html();
+            var vacancyCard = $(vacancyCardTemplate);
+
+            vacancyCard.find('.vacancy-title').text('Вакансия: ' + vacancy.jobTitle);
+            vacancyCard.find('.vacancy-salary').text('Зарплата: ' + vacancy.salary);
+            vacancyCard.find('.vacancy-location').text('Город: ' + vacancy.location);
+            vacancyCard.find('.vacancy-image').attr('src', vacancy.img); // исправлено название поля
+            vacancyCard.attr('data-vacancy-id', vacancy.id);
+
+            // Добавляем новую карточку вакансии в контейнер vacancyResults
+            $('#vacancyResults').append(vacancyCard);
+
+        });
+    }
+    $('#vacancyResults').on('click', '.vacancy-card', function() {
+        // Получаем ID выбранной вакансии
+        var vacancyId = $(this).data('vacancy-id');
+
+        // Перенаправляем пользователя на страницу vacancy.html с параметром vacancyId
+        window.location.href = 'vacancy.html?vacancyId=' + vacancyId;
+    });
+
+});
+
+</script>
+
+
+
+<footer>
+    <p>&copy; 2023 Job Search. Все права защищены.</p>
+</footer>
+</body>
+</html>

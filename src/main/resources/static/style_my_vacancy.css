@@ -1,0 +1,90 @@
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #f2f2f2;
+    padding: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: inline;
+    margin-right: 10px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+}
+
+.vacancy-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.vacancy-section h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.vacancy-info {
+    display: flex;
+    align-items: center;
+}
+
+.vacancy-image {
+    width: 200px;
+    margin-right: 20px;
+}
+
+.vacancy-image img {
+    width: 100%;
+    height: auto;
+}
+
+.vacancy-details {
+    flex-grow: 1;
+}
+
+.vacancy-details p {
+    margin-bottom: 10px;
+}
+
+.buttons {
+    margin-top: 20px;
+}
+
+.buttons button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+footer {
+    background-color: #f2f2f2;
+    padding: 10px;
+    text-align: center;
+}
+/* style_my_vacancy.css */
+.vacancy-location,
+.vacancy-salary,
+.vacancy-description {
+    font-weight: bold;
+}
+
+.candidate-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}

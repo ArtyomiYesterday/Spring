@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход</title>
+  <link rel="stylesheet" href="style_login.css"> <!-- Подключение файла стилей -->
+  <script src="script.js"></script> <!-- Подключение файла скрипта -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li><a id="home-link" href="#">Главная</a></li>
+      <li><a href="#" id="job_search">Поиск работы</a></li>
+      <li><a href="#" id ="employers">Работодателям</a></li>
+      <li><a href="#" id ="about-link">О нас</a></li>
+      <li><a href="#" id = "login-link">Войти</a></li>
+      <li><a href="#" id="register-link">Зарегистрироваться</a></li>
+      <li><a href="#" id="my_account">Мой аккаунт</a></li>
+      <li><a href="#" id="exit">Выход</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="login-form">
+  <h1>Вход</h1>
+  <form id="login-form" action="/api/auth/authenticate" method="post">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit" id="auth">Войти</button>
+  </form>
+  <div class="register-link">
+    <p>или если нет аккаунта</p>
+    <button type="submit" onclick="window.location.href='registration.html'">Зарегистрироваться</button>
+  </div>
+</div>
+<script>
+  $(document).ready(function() {
+
+    $('#auth').click(function(e) {
+      e.preventDefault();
+
+      var email = $('#email').val();
+      var password = $('#password').val();
+
+
+      $.ajax({
+        url: '/api/auth/authenticate',
+        type: 'POST',
+        contentType: 'application/json', // Указываем тип контента как JSON
+        data: JSON.stringify({ // Сериализуем данные в JSON
+          email: email,
+          password: password
+        }),
+        success: function(response) {
+          // Сохраняем токен в localStorage
+          localStorage.setItem('token', response.token);
+          console.log('Токен сохранен в localStorage');
+          console.log(response.token);
+          // Дополнительные действия после успешной аутентификации
+          window.location.href = 'index.html';
+        },
+        error: function() {
+          console.log('Ошибка при выполнении запроса');
+        }
+      });
+    });
+
+  });
+
+</script>
+<footer>
+  <p>&copy; 2023 Job Search. Все права защищены.</p>
+</footer>
+</body>
+</html>

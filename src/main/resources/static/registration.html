@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация</title>
+  <link rel="stylesheet" href="style_registration.css"> <!-- Подключение файла стилей -->
+  <script src="script.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li><a id="home-link" href="#">Главная</a></li>
+      <li><a href="#" id="job_search">Поиск работы</a></li>
+      <li><a href="#" id ="employers">Работодателям</a></li>
+      <li><a href="#" id ="about-link">О нас</a></li>
+      <li><a href="#" id = "login-link">Войти</a></li>
+      <li><a href="#" id="register-link">Зарегистрироваться</a></li>
+      <li><a href="#" id="my_account">Мой аккаунт</a></li>
+      <li><a href="#" id="exit">Выход</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="registration-form">
+  <h1>Регистрация</h1>
+  <form action="/api/auth/register" method="post">
+    <div>
+      <label for="username">Email:</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+      <label for="email">Подтвердите Email:</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+      <label for="password">Пароль:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div>
+      <label for="confirm-password">Подтвердите пароль:</label>
+      <input type="password" id="confirm-password" name="confirm-password" required>
+    </div>
+    <button type="submit" id="register">Зарегистрироваться</button>
+  </form>
+</section>
+<script>
+  $(document).ready(function() {
+
+    $('#register').click(function(e) {
+      e.preventDefault();
+
+      var username = $('#username').val();
+      var email = $('#email').val();
+      var password = $('#password').val();
+
+
+      $.ajax({
+        url: '/api/auth/register',
+        type: 'POST',
+        contentType: 'application/json', // Указываем тип контента как JSON
+        data: JSON.stringify({ // Сериализуем данные в JSON
+          username: username,
+          email: email,
+          password: password
+        }),
+        success: function(data) {
+          window.location.href = 'index.html';
+        },
+        error: function() {
+          console.log('Ошибка при выполнении запроса');
+        }
+      });
+    });
+
+  });
+
+
+</script>
+
+<footer>
+  <p>&copy; 2023 Job Search. Все права защищены.</p>
+</footer>
+</body>
+</html>

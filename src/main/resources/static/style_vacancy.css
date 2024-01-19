@@ -1,0 +1,74 @@
+/* Общие стили */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+section.vacancy-section {
+    padding: 20px;
+}
+
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Стили для информации о вакансии */
+.vacancy-info {
+    display: flex;
+}
+
+.vacancy-image {
+    flex: 0 0 40%;
+    margin-right: 20px;
+}
+
+.vacancy-image img {
+    max-width: 100%;
+}
+
+.vacancy-details {
+    flex: 1;
+}
+
+.vacancy-details p {
+    margin-bottom: 10px;
+}
+.apply-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #337ab7;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.apply-button:hover {
+    background-color: #286090;
+}

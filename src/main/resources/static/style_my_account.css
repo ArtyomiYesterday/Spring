@@ -1,0 +1,111 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.account-section {
+    max-width: 800px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.account-section h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.user-details {
+    margin-top: 20px;
+}
+
+.user-details h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.user-details p {
+    margin-bottom: 5px;
+}
+
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+/* Стили для формы резюме */
+.resume-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.resume-form input,
+.resume-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+.resume-form button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Стили для кнопки "Создать резюме" */
+.create-resume-button button {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+#view-vacancies{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: #f44336;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+.create-resume-button button:hover {
+    background-color: #d32f2f;
+}
+.buttons button{
+    background-color: #f44336;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+

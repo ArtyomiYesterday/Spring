@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вакансия</title>
+    <link rel="stylesheet" href="style_vacancy.css"> <!-- Подключение файла стилей -->
+    <script src="script.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a id="home-link" href="#">Главная</a></li>
+            <li><a href="#" id="job_search">Поиск работы</a></li>
+            <li><a href="#" id ="employers">Работодателям</a></li>
+            <li><a href="#" id ="about-link">О нас</a></li>
+            <li><a href="#" id = "login-link">Войти</a></li>
+            <li><a href="#" id="register-link">Зарегистрироваться</a></li>
+            <li><a href="#" id="my_account">Мой аккаунт</a></li>
+            <li><a href="#" id="exit">Выход</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="vacancy-section">
+    <h1>Название вакансии</h1>
+    <div class="vacancy-info">
+        <div class="vacancy-image">
+            <img src="" alt="Изображение вакансии">
+        </div>
+        <div class="vacancy-details">
+            <p><strong>Местоположение:</strong> <span class="vacancy-location"></span></p>
+            <p><strong>Зарплата:</strong> <span class="vacancy-salary"></span></p>
+            <p><strong>Описание:</strong> <span class="vacancy-description"></span></p>
+        </div>
+    </div>
+    <button class="apply-button" id="apply-button">Откликнуться</button>
+</section>
+
+
+<script>
+    $(document).ready(function() {
+        // Извлекаем значение параметра vacancyId из URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var vacancyId = urlParams.get('vacancyId');
+
+        // Выполняем AJAX-запрос для получения информации о вакансии
+        $.ajax({
+            url: '/api/vacancies/' + vacancyId,
+            type: 'GET',
+            success: function(vacancy) {
+                displayVacancy(vacancy);
+            },
+            error: function() {
+                console.log('Ошибка при выполнении запроса');
+            }
+        });
+
+        function displayVacancy(vacancy) {
+            // Отображаем информацию о вакансии на странице
+            $('.vacancy-section h1').text(vacancy.jobTitle);
+            $('.vacancy-section .vacancy-image img').attr('src', vacancy.img);
+            $('.vacancy-section .vacancy-details .vacancy-location').text(vacancy.location);
+            $('.vacancy-section .vacancy-details .vacancy-salary').text(vacancy.salary);
+            $('.vacancy-section .vacancy-details .vacancy-description').text(vacancy.description);
+        }
+
+
+        // ...
+    });
+
+</script>
+
+<script>
+    $(document).ready(function() {
+        var token = localStorage.getItem('token');
+
+
+        function applyToVacancy(vacancyId) {
+            $.ajax({
+                url: '/api/vacancies/' + vacancyId + '/apply',
+                type: 'POST',
+                headers: {
+                    Authorization: 'Bearer ' + token
+                },
+                success: function(data) {
+                    alert('Резюме успешно добавлено в вакансию');
+                },
+                error: function() {
+                    alert('Ошибка при добавлении резюме в вакансию');
+                }
+            });
+        }
+
+
+        if (token) {
+            $('#apply-button').on('click', function() {
+
+                var urlParams = new URLSearchParams(window.location.search);
+                var vacancyId = urlParams.get('vacancyId');
+                applyToVacancy(vacancyId);
+            });
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+</script>
+
+<footer>
+    <p>&copy; 2023 Job Search. Все права защищены.</p>
+</footer>
+</body>
+</html>

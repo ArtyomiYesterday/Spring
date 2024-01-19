@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой аккаунт</title>
+  <link rel="stylesheet" href="style_my_account.css">
+  <script src="script_my_account.js" defer></script> <!-- Подключение файла стилей -->
+  <script src="script.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    .vacancy-card img {
+      max-width: 100%;
+      max-height: 200px; /* Задайте желаемую максимальную высоту */
+      object-fit: cover;
+    }
+    .vacancy-card {
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 20px;
+      margin-left: 20px;
+      width: calc(33.33% - 20px);
+      box-sizing: border-box;
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    #resume-content img{
+      max-width: 100%;
+      max-height: 200px; /* Задайте желаемую максимальную высоту */
+      object-fit: cover;
+    }
+
+
+
+    #vacancyResults {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: left;
+
+    }
+
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li><a id="home-link" href="#">Главная</a></li>
+      <li><a href="#" id="job_search">Поиск работы</a></li>
+      <li><a href="#" id ="employers">Работодателям</a></li>
+      <li><a href="#" id ="about-link">О нас</a></li>
+      <li><a href="#" id = "login-link">Войти</a></li>
+      <li><a href="#" id="register-link">Зарегистрироваться</a></li>
+      <li><a href="#" id="my_account">Мой аккаунт</a></li>
+      <li><a href="#" id="exit">Выход</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="account-section">
+  <h1>Мой аккаунт</h1>
+  <div class="user-details">
+    <h2>Данные пользователя</h2>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <button id="view-vacancies">Показать мои вакансии</button>
+
+    <div id="vacancyResults"></div>
+
+    <template id="vacancyCardTemplate" >
+      <div class="vacancy-card">
+        <h3 class="vacancy-title"></h3>
+        <p class="vacancy-salary"></p>
+        <p class="vacancy-location"></p>
+        <img class="vacancy-image" src="" alt="Vacancy Image">
+      </div>
+    </template>
+
+    <!-- Другие данные пользователя -->
+  </div>
+
+  <div id="resume-content"></div>
+  <div class="resume-form" id="resume-form">
+    <h2>Форма резюме</h2>
+
+    <form id="create-resume-form" action="/api/resumes/save" method="post" enctype="application/json">
+
+    <label for="name">Имя:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="surname">Фамилия:</label>
+      <input type="text" id="surname" name="surname" required>
+
+      <label for="patronymic">Отчество:</label>
+      <input type="text" id="patronymic" name="patronymic">
+
+      <label for="date">Дата рождения:</label>
+      <input type="date" id="date" name="date" required>
+
+      <label for="myPhoto">Фото:</label>
+      <input type="text" id="myPhoto" name="myPhoto" required>
+
+      <label for="aboutMe">О себе:</label>
+      <textarea id="aboutMe" name="aboutMe" required></textarea>
+
+      <button id="add_resume" type="submit">Сохранить</button>
+    </form>
+  </div>
+
+  <div class="create-resume-button" id="create-resume-button">
+    <button id="create-resume">Создать резюме</button>
+  </div>
+
+</section>
+<script>
+  $(document).ready(function() {
+
+
+    // Функция для получения данных пользователя по токену
+    function getUserData(token) {
+      $.ajax({
+        url: '/api/user/get',
+        type: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token // Передаем токен в заголовке запроса
+        },
+        success: function(response) {
+
+          // Обновляем данные пользователя на странице
+
+          $('#email').text(response.email);
+          console.log(response.id);
+
+          // Дополнительные обновления данных пользователя
+          // ...
+        },
+        error: function() {
+          console.log('Ошибка при получении данных пользователя');
+        }
+      });
+    }
+
+    // Получаем токен из localStorage
+    var token = localStorage.getItem('token');
+
+    // Проверяем наличие токена
+    if (token) {
+      // Вызываем функцию для получения данных пользователя
+      getUserData(token);
+    } else {
+      // Редирект на страницу авторизации, если токен отсутствует
+      window.location.href = 'login.html';
+    }
+
+
+
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    var token = localStorage.getItem('token');
+
+    $('#add_resume').click(function(e) {
+      e.preventDefault();
+
+      var name = $('#name').val();
+      var surname = $('#surname').val();
+      var patronymic = $('#patronymic').val();
+      var email = $('#email').text();
+      var date = $('#date').val();
+      var aboutMe = $('#aboutMe').val();
+      var myPhoto = $('#myPhoto').val();
+
+      var requestData = {
+        name: name,
+        surname: surname,
+        patronymic: patronymic,
+        date: date,
+        email: email,
+        myPhoto: myPhoto,
+        aboutMe: aboutMe
+      };
+
+      $.ajax({
+        url: '/api/resumes/save',
+        type: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        contentType: 'application/json', // Установите тип контента в application/json
+        data: JSON.stringify(requestData), // Преобразуйте данные в JSON-строку
+        success: function(data) {
+          window.location.href = 'my_account.html';
+        },
+        error: function() {
+          console.log('Ошибка при выполнении запроса');
+        }
+      });
+    });
+  });
+
+</script>
+<script>
+  $(document).ready(function() {
+    var token = localStorage.getItem('token');
+
+    // Функция для получения резюме пользователя по токену
+    function getUserResume(token) {
+      $.ajax({
+        url: '/api/resumes/get',
+        type: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        success: function(response) {
+          if (response) {
+// Преобразование даты рождения в формат "число-месяц-год"
+              var birthDate = new Date(response.date);
+              var day = ("0" + birthDate.getDate()).slice(-2); // Добавляем ведущий ноль к числу дня
+              var month = ("0" + (birthDate.getMonth() + 1)).slice(-2); // Добавляем ведущий ноль к числу месяца
+              var year = birthDate.getFullYear();
+
+              var formattedBirthDate = `${day}-${month}-${year}`;
+
+// Отображение отформатированной даты рождения
+              var resumeHtml = `
+              <p><strong>Имя:</strong> ${response.name}</p>
+              <p><strong>Фамилия:</strong> ${response.surname}</p>
+              <p><strong>Отчество:</strong> ${response.patronymic}</p>
+              <p><strong>Дата рождения:</strong> ${formattedBirthDate}</p>
+              <img src="${response.myPhoto}" alt="Фото">
+              <p><strong>О себе:</strong> ${response.aboutMe}</p>
+`;
+              $('#resume-content').html(resumeHtml);
+            // Преобразование даты рождения в формат "число-месяц-год"
+            $('#create-resume-button').hide();
+            var birthDate = new Date(response.date);
+            var day = ("0" + birthDate.getDate()).slice(-2);
+            var month = ("0" + (birthDate.getMonth() + 1)).slice(-2);
+            var year = birthDate.getFullYear();
+            var formattedBirthDate = `${day}-${month}-${year}`;
+
+            var resumeHtml = `
+            <p><strong>Имя:</strong> ${response.name}</p>
+            <p><strong>Фамилия:</strong> ${response.surname}</p>
+            <p><strong>Отчество:</strong> ${response.patronymic}</p>
+            <p><strong>Дата рождения:</strong> ${formattedBirthDate}</p>
+            <img src="${response.myPhoto}" alt="Фото">
+            <p><strong>О себе:</strong> ${response.aboutMe}</p>
+            <div class="buttons">
+
+              <button id="delete-resume">Удалить резюме</button>
+            </div>
+          `;
+
+            $('#resume-content').html(resumeHtml);
+
+            // Добавьте обработчик события для кнопки "Удалить резюме"
+            $('#delete-resume').click(function() {
+              deleteResume(response.id);
+            });
+
+            // Добавьте обработчик события для кнопки "Изменить резюме"
+            $('#edit-resume').click(function() {
+              // Здесь можно добавить код для редактирования резюме
+            });
+          } else {
+            // Резюме не найдено, отобразить кнопку "Создать резюме"
+            $('#create-resume-button').show();
+          }
+        },
+        error: function() {
+          console.log('Ошибка при получении резюме');
+        }
+      });
+    }
+
+    // Функция для удаления резюме по его идентификатору
+    function deleteResume(resumeId) {
+      $.ajax({
+        url: `/api/resumes/${resumeId}`,
+        type: 'DELETE',
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        success: function(response) {
+          // Резюме успешно удалено
+
+          $('#resume-content').html('');
+          $('#create-resume-button').show();
+
+        },
+        error: function() {
+          alert('Ошибка при удалении резюме');
+        }
+      });
+    }
+
+
+    // Проверяем наличие токена
+    if (token) {
+      // Вызываем функцию для получения резюме пользователя
+      getUserResume(token);
+    } else {
+      // Редирект на страницу авторизации, если токен отсутствует
+      $('#create-resume-button').show();
+    }
+  });
+
+</script>
+<script>
+  $(document).ready(function() {
+    // При нажатии на кнопку с id="view-vacancies" вызывается функция getVacanciesByUserId
+    $('#view-vacancies').click(function() {
+      getVacanciesByUserId();
+    });
+
+    function getVacanciesByUserId() {
+      var token = localStorage.getItem('token');
+      console.log('getVacanciesByUserId');
+      $.ajax({
+        url: '/api/vacancies/myVacancies',
+        type: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + token
+        },
+        success: function(data) {
+          displayVacancies(data);
+        },
+        error: function() {
+          console.log('Ошибка при выполнении запроса');
+        }
+      });
+    }
+
+    function displayVacancies(vacancies) {
+      console.log('displayVacancies');
+
+      // Очищаем контейнер vacancyResults
+      $('#vacancyResults').empty();
+
+      vacancies.forEach(function(vacancy) {
+        var vacancyCardTemplate = $('#vacancyCardTemplate').html();
+        var vacancyCard = $(vacancyCardTemplate);
+
+        vacancyCard.find('.vacancy-title').text('Вакансия: ' + vacancy.jobTitle);
+        vacancyCard.find('.vacancy-salary').text('Зарплата: ' + vacancy.salary);
+        vacancyCard.find('.vacancy-location').text('Город: ' + vacancy.location);
+        vacancyCard.find('.vacancy-image').attr('src', vacancy.img); // исправлено название поля
+        vacancyCard.attr('data-vacancy-id', vacancy.id);
+
+        // Добавляем новую карточку вакансии в контейнер vacancyResults
+        $('#vacancyResults').append(vacancyCard);
+      });
+    }
+    $('#vacancyResults').on('click', '.vacancy-card', function() {
+      // Получаем ID выбранной вакансии
+      var vacancyId = $(this).data('vacancy-id');
+
+      // Перенаправляем пользователя на страницу vacancy.html с параметром vacancyId
+      window.location.href = 'my_vacancy.html?vacancyId=' + vacancyId;
+    });
+
+
+  });
+
+</script>
+<footer>
+  <p>&copy; 2023 Job Search. Все права защищены.</p>
+</footer>
+</body>
+</html>

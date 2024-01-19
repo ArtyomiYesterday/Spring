@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Моя вакансия</title>
+
+  <link rel="stylesheet" href="style_my_vacancy.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <script src="script_my_vacancy.js" defer></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <style>
+    #candidates-list img{
+      max-width: 100%;
+      max-height: 200px; /* Задайте желаемую максимальную высоту */
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li><a id="home-link" href="#">Главная</a></li>
+      <li><a href="#" id="job_search">Поиск работы</a></li>
+      <li><a href="#" id ="employers">Работодателям</a></li>
+      <li><a href="#" id ="about-link">О нас</a></li>
+      <li><a href="#" id = "login-link">Войти</a></li>
+      <li><a href="#" id="register-link">Зарегистрироваться</a></li>
+      <li><a href="#" id="my_account">Мой аккаунт</a></li>
+      <li><a href="#" id="exit">Выход</a></li>
+    </ul>
+  </nav>
+
+</header>
+
+
+
+<section class="vacancy-section">
+  <h1 class="vacancy-title">Название вакансии</h1>
+  <div class="vacancy-info">
+    <div class="vacancy-image">
+      <img src="" alt="Изображение вакансии">
+    </div>
+    <div class="vacancy-details">
+      <p><strong>Местоположение:</strong> <span class="vacancy-location"></span></p>
+      <p><strong>Зарплата:</strong> <span class="vacancy-salary"></span></p>
+      <p><strong>Описание:</strong> <span class="vacancy-description"></span></p>
+    </div>
+  </div>
+
+
+  <div class="buttons">
+    <button id="edit-vacancy">Изменить вакансию</button>
+    <button id="delete-vacancy">Удалить вакансию</button>
+    <button id="view-candidates">Посмотреть кандидатов</button>
+  </div>
+  <div class="candidates-section">
+    <h2>Кандидаты</h2>
+    <div id="candidates-list">
+      <!-- Здесь будут добавлены данные кандидатов через AJAX -->
+    </div>
+  </div>
+</section>
+
+
+<script>
+  $(document).ready(function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var vacancyId = urlParams.get('vacancyId');
+    $('#view-candidates').click(function() {
+      $.ajax({
+        url: '/api/vacancies/' + vacancyId + '/applicants',
+        method: 'GET',
+        success: function(response) {
+          var candidates = response;
+          if (Array.isArray(candidates) && candidates.length > 0) {
+            var candidatesList = $('#candidates-list');
+            candidatesList.empty();
+
+            candidates.forEach(function(candidate) {
+              var candidateItem = $('<div>').addClass('candidate-item');
+              candidateItem.append($('<p>').html('<strong>Имя:</strong> ' + candidate.name));
+              candidateItem.append($('<p>').html('<strong>Фамилия:</strong> ' + candidate.surname));
+              candidateItem.append($('<p>').html('<strong>Отчество:</strong> ' + candidate.patronymic));
+              candidateItem.append($('<p>').html('<strong>Email:</strong> ' + candidate.email));
+              var formattedDate = moment(candidate.date).format('DD-MM-YYYY');
+              candidateItem.append($('<p>').html('<strong>Дата рождения:</strong> ' + formattedDate));
+              candidateItem.append($('<img>').attr('src', candidate.myPhoto).attr('alt', 'Фото'));
+              candidateItem.append($('<p>').html('<strong>О себе:</strong> ' + candidate.aboutMe));
+
+              // Создаем невидимое поле для хранения идентификатора кандидата
+              var candidateIdField = $('<input>').attr('type', 'hidden').attr('name', 'candidateId').val(candidate.id);
+              candidateItem.append(candidateIdField);
+
+              // Создаем кнопку "Удалить" и добавляем обработчик события для удаления кандидата
+              var deleteButton = $('<button>').addClass('delete-candidate').text('Удалить');
+              deleteButton.click(function() {
+                var candidateId = $(this).siblings('input[name="candidateId"]').val();
+                $.ajax({
+                  url: '/api/vacancies/' + vacancyId + '/applicants/' + candidateId,
+                  method: 'DELETE',
+                  success: function(response) {
+                    // Обработка успешного удаления
+                    console.log('Связь vacancy_applicants успешно удалена.');
+                  },
+                  error: function() {
+                    // Обработка ошибки при удалении связи vacancy_applicants
+                    alert('Произошла ошибка при удалении связи vacancy_applicants.');
+                  }
+                });
+
+                // Здесь можно написать логику удаления кандидата с использованием идентификатора candidateId
+
+                // После удаления кандидата из списка, можно удалить соответствующий элемент из DOM
+                $(this).parent().remove();
+              });
+
+              candidateItem.append(deleteButton);
+              candidatesList.append(candidateItem);
+            });
+
+          } else {
+            alert('Кандидаты не найдены.');
+          }
+        },
+        error: function() {
+          alert('Произошла ошибка при получении кандидатов.');
+        }
+      });
+    });
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    $('#edit-vacancy').click(function() {
+      var urlParams = new URLSearchParams(window.location.search);
+      var vacancyId = urlParams.get('vacancyId');
+      // Получаем текущие значения полей вакансии
+      var jobTitle = $('.vacancy-title').text();
+      var location = $('.vacancy-location').text();
+      var salary = $('.vacancy-salary').text();
+      var description = $('.vacancy-description').text();
+
+      // Заменяем содержимое элементов на поля ввода
+      $('.vacancy-title').html('<input type="text" class="edit-job-title" value="' + jobTitle + '">');
+      $('.vacancy-location').html('<input type="text" class="edit-location" value="' + location + '">');
+      $('.vacancy-salary').html('<input type="text" class="edit-salary" value="' + salary + '">');
+      $('.vacancy-description').html('<textarea class="edit-description">' + description + '</textarea>');
+
+      // Добавляем кнопку "Подтвердить" и обработчик события
+      $('.vacancy-details').append('<button class="confirm-edit">Подтвердить</button>');
+      $('.confirm-edit').click(function() {
+        // Получаем значения из полей ввода
+        var editedJobTitle = $('.edit-job-title').val();
+        var editedLocation = $('.edit-location').val();
+        var editedSalary = $('.edit-salary').val();
+        var editedDescription = $('.edit-description').val();
+
+        // Отправляем данные на сервер для обновления вакансии
+        $.ajax({
+          url: '/api/vacancies/' + vacancyId,
+          method: 'PUT',
+          contentType: 'application/json',
+          data:JSON.stringify( {
+            jobTitle: editedJobTitle,
+            location: editedLocation,
+            salary: editedSalary,
+            description: editedDescription
+          }),
+          success: function(response) {
+            // Обработка успешного обновления
+            // Например, перезагрузка страницы или обновление данных на странице
+            console.log('ssssssssssssiee')
+            window.location.reload();
+          },
+          error: function() {
+            // Обработка ошибки при обновлении вакансии
+            alert('Произошла ошибка при обновлении вакансии.');
+          }
+        });
+      });
+    });
+  });
+
+</script>
+
+<footer>
+  <p>&copy; 2023 Job Search. Все права защищены.</p>
+</footer>
+</body>
+</html>
